@@ -11,6 +11,7 @@ public:
     Vec2 velocity;
     double radius;
     double mass;
+    Particle(Vec2 position, Vec2 velocity, double radius, double mass);
 };
 
 

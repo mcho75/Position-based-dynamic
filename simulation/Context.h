@@ -10,12 +10,12 @@ class Context {
 public:
     Context() : _particles(QList<Particle>()) {}
     ~Context() = default;
-    void addParticle(const Particle* particle);
+    void addParticle(Particle* particle);
+    QList<Particle> getParticles();
     void updatePhysicalSystem(double dt);
 
 private:
     QList<Particle> _particles;
-
 };
 
 

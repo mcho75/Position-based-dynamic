@@ -20,7 +20,9 @@ public:
 
 private:
     Ui::MainWindow* ui;
-    Viewport* viewport{};
+    Context* _context;
+    Viewport* _viewport;
+    QTimer* _timer;
 };
 
 

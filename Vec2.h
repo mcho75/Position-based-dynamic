@@ -9,7 +9,10 @@ public:
         _components[0] = x;
         _components[1] = y;
     }
-    double operator[](int i) const {
+    double operator[](int i) {
+        return _components[i];
+    }
+    const double operator[](int i) const {
         return _components[i];
     }
 
@@ -25,16 +28,20 @@ inline Vec2 operator-(const Vec2& a, const Vec2& b) {
     return {a[0] - b[0], a[1] - b[1]};
 }
 
-inline Vec2 operator*(const Vec2& a, const Vec2& b) {
-    return {a[0] * b[0], a[1] * b[1]};
-}
-
 inline Vec2 operator*(const Vec2& a, double b) {
     return {a[0] * b, a[1] * b};
 }
 
 inline Vec2 operator*(double b, const Vec2& a) {
     return {a[0] * b, a[1] * b};
+}
+
+inline Vec2 operator/(const Vec2& a, double b) {
+    return {a[0] / b, a[1] / b};
+}
+
+inline Vec2 operator/(double b, const Vec2& a) {
+    return {b / a[0], b / a[1]};
 }
 
 
