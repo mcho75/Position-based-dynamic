@@ -13,7 +13,8 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     _viewport = ui->viewport;
     _viewport->setContext(_context);
-    _viewport->setDt(dt);
+    _viewport->setDt((double) dt / 1000);
+    _viewport->setScale(1000);
 
     connect(_timer, &QTimer::timeout, _viewport, &Viewport::animate);
     _timer->start(dt);

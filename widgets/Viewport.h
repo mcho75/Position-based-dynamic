@@ -10,9 +10,12 @@ class Viewport : public QOpenGLWidget {
 
 public:
     explicit Viewport(QWidget* parent = nullptr);
+    double toScale(double value);
+    double fromScale(double value);
     Vec2 worldToView(Vec2 worldPos);
     Vec2 viewToWorld(Vec2 viewPos);
-    void setDt(int dt);
+    void setDt(double dt);
+    void setScale(double scale);
     void paintEvent(QPaintEvent* event) override;
     void mouseReleaseEvent(QMouseEvent* event) override;
     void setContext(Context *context);
@@ -20,7 +23,8 @@ public:
 
 private:
     Context* _context;
-    int _dt;
+    double _dt;
+    double _scale;
 };
 
 

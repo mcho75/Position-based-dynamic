@@ -3,18 +3,32 @@
 #include <QPaintEvent>
 
 Viewport::Viewport(QWidget* parent)
-    : QOpenGLWidget(parent) {}
+    : QOpenGLWidget(parent)
+    , _dt(0.001)
+    , _scale(1) {}
+
+double Viewport::toScale(double value) {
+    return value * _scale;
+}
+
+double Viewport::fromScale(double value) {
+    return value / _scale;
+}
 
 Vec2 Viewport::worldToView(Vec2 worldPos) {
-    return Vec2(worldPos[0], height() - worldPos[1]);
+    return Vec2(toScale(worldPos[0]), height() - toScale(worldPos[1]));
 }
 
 Vec2 Viewport::viewToWorld(Vec2 viewPos) {
-    return Vec2(viewPos[0], height() - viewPos[1]);
+    return Vec2(fromScale(viewPos[0]), fromScale(height() - viewPos[1]));
 }
 
-void Viewport::setDt(int dt) {
+void Viewport::setDt(double dt) {
     _dt = dt;
+}
+
+void Viewport::setScale(double scale) {
+    _scale = scale;
 }
 
 void Viewport::paintEvent(QPaintEvent* event) {
@@ -31,7 +45,7 @@ void Viewport::paintEvent(QPaintEvent* event) {
     painter.setBrush(QBrush(Qt::red));
     for (Particle& particle : particles) {
         Vec2 pos = worldToView(particle.position);
-        double radius = particle.radius;
+        double radius = toScale(particle.radius);
         dimensions.setRect(pos[0] - radius / 2, pos[1] - radius / 2, radius, radius);
         painter.drawEllipse(dimensions);
     }
@@ -39,7 +53,7 @@ void Viewport::paintEvent(QPaintEvent* event) {
 
 void Viewport::mouseReleaseEvent(QMouseEvent* event) {
     Vec2 worldPos = viewToWorld(Vec2(event->pos().x(), event->pos().y()));
-    _context->addParticle(new Particle(worldPos, Vec2(0, 0), 10, 50));
+    _context->addParticle(new Particle(worldPos, Vec2(0, 0), 0.01, 5.0));
 }
 
 void Viewport::setContext(Context* context) {
@@ -50,6 +64,6 @@ void Viewport::animate() {
     if (_context == nullptr) {
         return;
     }
-    _context->updatePhysicalSystem(((double) _dt) / 1000);
+    _context->updatePhysicalSystem(_dt);
     update();
 }

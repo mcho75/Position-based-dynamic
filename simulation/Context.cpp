@@ -9,7 +9,7 @@ QList<Particle> Context::getParticles() {
 }
 
 void Context::updatePhysicalSystem(double dt) {
-    Vec2 Fext(0, -9000.81);
+    Vec2 Fext(0, -9.81);
 
     // compute velocities
     for (Particle& particle : _particles) {

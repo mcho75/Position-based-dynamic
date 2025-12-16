@@ -9,10 +9,11 @@ public:
         _components[0] = x;
         _components[1] = y;
     }
+    ~Vec2() = default;
     double operator[](int i) {
         return _components[i];
     }
-    const double operator[](int i) const {
+    double operator[](int i) const {
         return _components[i];
     }
 
