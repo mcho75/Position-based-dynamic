@@ -1,7 +1,7 @@
 #include "Context.h"
 
-void Context::addParticle(Particle* particle) {
-    _particles.append(*particle);
+void Context::addParticle(const Particle& particle) {
+    _particles.append(particle);
 }
 
 QList<Particle> Context::getParticles() {

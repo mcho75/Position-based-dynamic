@@ -20,11 +20,12 @@ set(PROJECT_SOURCES
         mainwindow.ui
         simulation/Context.cpp
         simulation/Context.h
-        simulation/Particle.cpp
-        simulation/Particle.h
         Vec2.h
         widgets/Viewport.cpp
         widgets/Viewport.h
+        simulation/Collider.cpp
+        simulation/Collider.h
+        simulation/Particle.h
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
