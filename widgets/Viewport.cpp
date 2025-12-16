@@ -53,7 +53,7 @@ void Viewport::paintEvent(QPaintEvent* event) {
 
 void Viewport::mouseReleaseEvent(QMouseEvent* event) {
     Vec2 worldPos = viewToWorld(Vec2(event->pos().x(), event->pos().y()));
-    _context->addParticle(new Particle(worldPos, Vec2(0, 0), 0.01, 5.0));
+    _context->addParticle({worldPos, worldPos, Vec2(0, 0), 0.01, 5.0});
 }
 
 void Viewport::setContext(Context* context) {
