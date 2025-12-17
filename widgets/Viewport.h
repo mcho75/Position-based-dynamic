@@ -9,7 +9,10 @@ class Viewport : public QOpenGLWidget {
     Q_OBJECT
 
 public:
-    explicit Viewport(QWidget* parent = nullptr);
+    explicit Viewport(QWidget* parent = nullptr)
+        : QOpenGLWidget(parent)
+        , _dt(0.001)
+        , _scale(1) {}
     double toScale(double value);
     double fromScale(double value);
     Vec2 worldToView(Vec2 worldPos);

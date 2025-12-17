@@ -2,11 +2,6 @@
 #include <QPainter>
 #include <QPaintEvent>
 
-Viewport::Viewport(QWidget* parent)
-    : QOpenGLWidget(parent)
-    , _dt(0.001)
-    , _scale(1) {}
-
 double Viewport::toScale(double value) {
     return value * _scale;
 }
