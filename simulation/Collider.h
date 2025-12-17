@@ -5,7 +5,7 @@
 #include "Particle.h"
 
 struct StaticConstraint {
-    const Particle& particle;
+    Particle& particle;
     Vec2 position;
     Vec2 normal;
 };
@@ -14,7 +14,7 @@ class Collider {
 
 public:
     virtual ~Collider() = default;
-    virtual StaticConstraint* checkContact(const Particle& particle) {return nullptr;}
+    virtual StaticConstraint* checkContact(Particle& particle) {return nullptr;}
 };
 
 class SphereCollider final : public Collider {
@@ -24,7 +24,7 @@ public:
         : _position(position)
         , _radius(radius) {}
     ~SphereCollider() override = default;
-    StaticConstraint* checkContact(const Particle& particle) override;
+    StaticConstraint* checkContact(Particle& particle) override;
 
 private:
     double _position;
@@ -38,7 +38,7 @@ public:
         : _start(start)
         , _end(end) {}
     ~PlanCollider() override = default;
-    StaticConstraint* checkContact(const Particle& particle) override;
+    StaticConstraint* checkContact(Particle& particle) override;
 
 private:
     double _start;

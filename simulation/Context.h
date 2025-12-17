@@ -4,18 +4,32 @@
 
 #include <qlist.h>
 #include "Particle.h"
+#include "Collider.h"
 
 class Context {
 
 public:
-    Context() : _particles(QList<Particle>()) {}
+    Context()
+        : _particles(QList<Particle>())
+        , _colliders(QList<Collider>())
+        , _staticConstraints(QList<StaticConstraint*>()) {}
     ~Context() = default;
     void addParticle(const Particle& particle);
     QList<Particle> getParticles();
-    void updatePhysicalSystem(double dt);
+    QList<Collider> getColliders();
+    void updatePhysicalSystem(const double dt);
+    void applyExternalForce(const double dt);
+    void addDynamicContactConstraints(const double dt);
+    void addStaticContactConstraints(const double dt);
+    void projectConstraints();
+    void applyFriction(const double dt);
+    void deleteContactConstraints();
+    void applyPositions();
 
 private:
     QList<Particle> _particles;
+    QList<Collider> _colliders;
+    QList<StaticConstraint*> _staticConstraints;
 };
 
 
