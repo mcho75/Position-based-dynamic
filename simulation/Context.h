@@ -15,6 +15,7 @@ public:
         , _staticConstraints(QList<StaticConstraint*>()) {}
     ~Context() = default;
     void addParticle(const Particle& particle);
+    void addCollider(const Collider &collider);
     QList<Particle> getParticles();
     QList<Collider> getColliders();
     void updatePhysicalSystem(const double dt);

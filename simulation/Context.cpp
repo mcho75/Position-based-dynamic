@@ -4,6 +4,10 @@ void Context::addParticle(const Particle& particle) {
     _particles.append(particle);
 }
 
+void Context::addCollider(const Collider& collider) {
+    _colliders.append(collider);
+}
+
 QList<Particle> Context::getParticles() {
     return _particles;
 }

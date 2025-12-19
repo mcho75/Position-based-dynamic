@@ -27,28 +27,61 @@ void Viewport::setScale(double scale) {
 }
 
 void Viewport::paintEvent(QPaintEvent* event) {
-    qDebug() << "PaintEvent";
     if (_context == nullptr) {
         return;
     }
-    QList<Particle> particles = _context->getParticles();
-    QPainter painter(this);
-    painter.fillRect(event->rect(), QBrush(Qt::white));
-    QRect dimensions = QRect(0, 0, width(), height());
 
-    painter.setPen(Qt::blue);
-    painter.setBrush(QBrush(Qt::red));
+    QList<Particle> particles = _context->getParticles();
+    QList<Collider> colliders = _context->getColliders();
+    QPainter painter = QPainter(this);
+
+    painter.fillRect(event->rect(), QBrush(Qt::white));
+
+    // draw particles
+    painter.setBrush(Qt::blue);
     for (Particle& particle : particles) {
         Vec2 pos = worldToView(particle.position);
         double radius = toScale(particle.radius);
-        dimensions.setRect(pos[0] - radius / 2, pos[1] - radius / 2, radius, radius);
+        QRect dimensions = QRect(pos[0] - radius / 2, pos[1] - radius / 2, radius, radius);
         painter.drawEllipse(dimensions);
+    }
+
+    // draw colliders
+    for (Collider& collider : colliders) {}
+
+    // draw hypothetic collider
+    if (_creatingWall) {
+        painter.setPen(Qt::gray);
+        painter.setBrush(Qt::gray);
+        painter.drawLine(_startClick[0], _startClick[1], _endClick[0], _endClick[1]);
+    }
+}
+
+void Viewport::mousePressEvent(QMouseEvent *event) {
+    if (!_creatingWall) {
+        _creatingWall = true;
+        _startClick = Vec2(event->pos().x(), event->pos().y());
+        _endClick = Vec2(event->pos().x(), event->pos().y());
+    }
+}
+
+void Viewport::mouseDoubleClickEvent(QMouseEvent *event) {
+    Vec2 worldPos = viewToWorld(Vec2(event->pos().x(), event->pos().y()));
+    _context->addParticle({worldPos, worldPos, Vec2(0, 0), 0.01, 5.0});
+}
+
+void Viewport::mouseMoveEvent(QMouseEvent* event) {
+    if (_creatingWall) {
+        _endClick = Vec2(event->pos().x(), event->pos().y());
     }
 }
 
 void Viewport::mouseReleaseEvent(QMouseEvent* event) {
-    Vec2 worldPos = viewToWorld(Vec2(event->pos().x(), event->pos().y()));
-    _context->addParticle({worldPos, worldPos, Vec2(0, 0), 0.01, 5.0});
+    if (_creatingWall) {
+        _creatingWall = false;
+        _endClick = Vec2(event->pos().x(), event->pos().y());
+        _context->addCollider(PlanCollider(viewToWorld(_startClick), viewToWorld(_endClick)));
+    }
 }
 
 void Viewport::setContext(Context* context) {
