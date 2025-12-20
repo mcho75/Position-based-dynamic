@@ -4,7 +4,7 @@ void Context::addParticle(const Particle& particle) {
     _particles.append(particle);
 }
 
-void Context::addCollider(const Collider& collider) {
+void Context::addCollider(Collider* collider) {
     _colliders.append(collider);
 }
 
@@ -12,7 +12,7 @@ QList<Particle> Context::getParticles() {
     return _particles;
 }
 
-QList<Collider> Context::getColliders() {
+QList<Collider*> Context::getColliders() {
     return _colliders;
 }
 
@@ -39,9 +39,9 @@ void Context::applyExternalForce(const double dt) {
 void Context::addDynamicContactConstraints(const double dt) {}
 
 void Context::addStaticContactConstraints(const double dt) {
-    for (Collider& collider : _colliders) {
+    for (Collider* collider : _colliders) {
         for (Particle& particle : _particles) {
-            StaticConstraint* constraint = collider.checkContact(particle);
+            StaticConstraint* constraint = collider->checkContact(particle);
             if (constraint != nullptr) {
                 _staticConstraints.append(constraint);
             }

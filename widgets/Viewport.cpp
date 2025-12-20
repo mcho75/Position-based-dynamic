@@ -1,6 +1,4 @@
 #include "Viewport.h"
-#include <QPainter>
-#include <QPaintEvent>
 
 double Viewport::toScale(double value) {
     return value * _scale;
@@ -32,7 +30,7 @@ void Viewport::paintEvent(QPaintEvent* event) {
     }
 
     QList<Particle> particles = _context->getParticles();
-    QList<Collider> colliders = _context->getColliders();
+    QList<Collider*> colliders = _context->getColliders();
     QPainter painter = QPainter(this);
 
     painter.fillRect(event->rect(), QBrush(Qt::white));
@@ -47,7 +45,9 @@ void Viewport::paintEvent(QPaintEvent* event) {
     }
 
     // draw colliders
-    for (Collider& collider : colliders) {}
+    for (Collider* collider : colliders) {
+        collider->drawCollider(painter, this);
+    }
 
     // draw hypothetic collider
     if (_creatingWall) {
@@ -80,7 +80,7 @@ void Viewport::mouseReleaseEvent(QMouseEvent* event) {
     if (_creatingWall) {
         _creatingWall = false;
         _endClick = Vec2(event->pos().x(), event->pos().y());
-        _context->addCollider(PlanCollider(viewToWorld(_startClick), viewToWorld(_endClick)));
+        _context->addCollider(new PlanCollider(viewToWorld(_startClick), viewToWorld(_endClick)));
     }
 }
 

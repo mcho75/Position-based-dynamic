@@ -2,7 +2,10 @@
 #define POSITION_BASED_DYNAMIC_COLLIDER_H
 
 
+#include <QPainter>
 #include "Particle.h"
+
+class Viewport;
 
 struct StaticConstraint {
     Particle& particle;
@@ -15,6 +18,7 @@ class Collider {
 public:
     virtual ~Collider() = default;
     virtual StaticConstraint* checkContact(Particle& particle) { return nullptr; }
+    virtual void drawCollider(QPainter& painter, Viewport* viewport) {}
 };
 
 class SphereCollider final : public Collider {
@@ -25,8 +29,7 @@ public:
         , _radius(radius) {}
     ~SphereCollider() override = default;
     StaticConstraint* checkContact(Particle& particle) override;
-    Vec2 getPosition() const { return _position; }
-    double getRadius() const { return _radius; }
+    void drawCollider(QPainter& painter, Viewport* viewport) override;
 
 private:
     Vec2 _position;
@@ -41,8 +44,7 @@ public:
         , _end(end) {}
     ~PlanCollider() override = default;
     StaticConstraint* checkContact(Particle& particle) override;
-    Vec2 getStart() { return _start; }
-    Vec2 getEnd() { return _end; }
+    void drawCollider(QPainter& painter, Viewport* viewport) override;
 
 private:
     Vec2 _start;

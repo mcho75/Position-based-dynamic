@@ -3,7 +3,7 @@
 
 
 #include <QOpenGLWidget>
-#include <QPainter>
+#include <QPaintEvent>
 #include "simulation/Context.h"
 
 class Viewport : public QOpenGLWidget {

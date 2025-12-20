@@ -11,13 +11,13 @@ class Context {
 public:
     Context()
         : _particles(QList<Particle>())
-        , _colliders(QList<Collider>())
+        , _colliders(QList<Collider*>())
         , _staticConstraints(QList<StaticConstraint*>()) {}
     ~Context() = default;
     void addParticle(const Particle& particle);
-    void addCollider(const Collider &collider);
+    void addCollider(Collider* collider);
     QList<Particle> getParticles();
-    QList<Collider> getColliders();
+    QList<Collider*> getColliders();
     void updatePhysicalSystem(const double dt);
     void applyExternalForce(const double dt);
     void addDynamicContactConstraints(const double dt);
@@ -29,7 +29,7 @@ public:
 
 private:
     QList<Particle> _particles;
-    QList<Collider> _colliders;
+    QList<Collider*> _colliders;
     QList<StaticConstraint*> _staticConstraints;
 };
 
