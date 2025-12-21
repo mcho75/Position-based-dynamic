@@ -21,6 +21,10 @@ private:
     double _components[2] = {0.0, 0.0};
 };
 
+inline double operator*(const Vec2& a, const Vec2& b) {
+    return (a[0] * b[0]) + (a[1] * b[1]);
+}
+
 inline Vec2 operator+(const Vec2& a, const Vec2& b) {
     return {a[0] + b[0], a[1] + b[1]};
 }

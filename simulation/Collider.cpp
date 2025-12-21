@@ -3,9 +3,8 @@
 #include "widgets/Viewport.h"
 
 StaticConstraint* SphereCollider::checkContact(Particle& particle) {
-    double norm = (particle.position[0] - _position[0]) * (particle.position[0] - _position[0])
-                + (particle.position[1] - _position[1]) * (particle.position[1] - _position[1]);
-    norm = sqrt(norm);
+    double norm = sqrt((particle.position[0] - _position[0]) * (particle.position[0] - _position[0])
+                     + (particle.position[1] - _position[1]) * (particle.position[1] - _position[1]));
     Vec2 nc = (particle.position - _position) / norm;
     if (norm - _radius < 0) {
         return new StaticConstraint{particle, particle.position - (norm - _radius) * nc, nc};
@@ -14,14 +13,18 @@ StaticConstraint* SphereCollider::checkContact(Particle& particle) {
 }
 
 StaticConstraint* PlanCollider::checkContact(Particle& particle) {
-    double a = (_end[1] -  _start[1]) / (_end[0] - _start[0]);
+    double a = (_end[1] - _start[1]) / (_end[0] - _start[0]);
     Vec2 pc = (_end + _start) / 2;
-    double x = particle.position[0];
-    double y = particle.position[1];
-    Vec2 n(a, -1);
-    double ri = particle.radius;
-    if (n[0] * (x - pc[0]) + n[1] * n[1] * (y - pc[1]) - ri < 0){
-        return new StaticConstraint{particle, pc, n};
+    Vec2 nc(-a, 1);
+    double isOverBefore = (particle.position - pc) * nc - particle.radius;
+    if (isOverBefore < 0) {
+        nc = nc * -1;
+    }
+    double isOverAfter = (particle.nextPosition - pc) * nc - particle.radius;
+    if (isOverAfter < 0) {
+        Vec2 qc = particle.nextPosition - (nc * isOverAfter);
+        double C = (particle.nextPosition - qc) * nc - particle.radius;
+        return new StaticConstraint{particle, nc * -C, nc};
     }
     return nullptr;
 }

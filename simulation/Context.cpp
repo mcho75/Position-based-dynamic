@@ -18,12 +18,11 @@ QList<Collider*> Context::getColliders() {
 
 void Context::updatePhysicalSystem(const double dt) {
     applyExternalForce(dt);
-    applyFriction(dt);
-    addStaticContactConstraints(dt);
-    addDynamicContactConstraints(dt);
+    addStaticContactConstraints();
+    addDynamicContactConstraints();
     projectConstraints();
     deleteContactConstraints();
-    applyPositions();
+    applyPositions(dt);
 }
 
 void Context::applyExternalForce(const double dt) {
@@ -34,18 +33,18 @@ void Context::applyExternalForce(const double dt) {
     // compute velocities
     for (Particle& particle : _particles) {
         particle.velocity = particle.velocity + (Fext * dt / particle.mass);
+        particle.nextPosition = particle.position + (particle.velocity * dt);
     }
 }
 
-void Context::addDynamicContactConstraints(const double dt) {}
+void Context::addDynamicContactConstraints() {}
 
-void Context::addStaticContactConstraints(const double dt) {
+void Context::addStaticContactConstraints() {
     for (Collider* collider : _colliders) {
         for (Particle& particle : _particles) {
             StaticConstraint* constraint = collider->checkContact(particle);
             if (constraint != nullptr) {
                 _staticConstraints.append(constraint);
-                qDebug("collision detected");
             }
         }
     }
@@ -53,23 +52,7 @@ void Context::addStaticContactConstraints(const double dt) {
 
 void Context::projectConstraints() {
     for (StaticConstraint* constraint : _staticConstraints) {
-        (constraint->particle).nextPosition = {0, 0}; // TODO: compute positions
-    }
-}
-
-void Context::applyFriction(const double dt) {
-
-    // friction coefficient
-    double lambda = 0.0;
-
-    // compute velocities
-    for (Particle& particle : _particles) {
-        particle.velocity = particle.velocity + particle.velocity * (-lambda * dt / particle.mass);
-    }
-
-    // compute positions
-    for (Particle& particle : _particles) {
-        particle.nextPosition = particle.nextPosition + (particle.velocity * dt);
+        constraint->particle.nextPosition = constraint->particle.nextPosition + constraint->position;
     }
 }
 
@@ -82,8 +65,9 @@ void Context::deleteContactConstraints() {
     _staticConstraints.clear();
 }
 
-void Context::applyPositions() {
+void Context::applyPositions(const double dt) {
     for (Particle& particle : _particles) {
+        particle.velocity = (particle.nextPosition - particle.position) / dt;
         particle.position = particle.nextPosition;
     }
 }

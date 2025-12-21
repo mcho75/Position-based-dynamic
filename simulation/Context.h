@@ -20,12 +20,11 @@ public:
     QList<Collider*> getColliders();
     void updatePhysicalSystem(const double dt);
     void applyExternalForce(const double dt);
-    void addDynamicContactConstraints(const double dt);
-    void addStaticContactConstraints(const double dt);
+    void addDynamicContactConstraints();
+    void addStaticContactConstraints();
     void projectConstraints();
-    void applyFriction(const double dt);
     void deleteContactConstraints();
-    void applyPositions();
+    void applyPositions(const double dt);
 
 private:
     QList<Particle> _particles;
