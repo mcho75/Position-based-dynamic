@@ -19,6 +19,7 @@ QList<Collider*> Context::getColliders() {
 void Context::updatePhysicalSystem(const double dt) {
     applyExternalForce(dt);
     applyFriction(dt);
+    addStaticContactConstraints(dt);
     addDynamicContactConstraints(dt);
     projectConstraints();
     deleteContactConstraints();
@@ -44,6 +45,7 @@ void Context::addStaticContactConstraints(const double dt) {
             StaticConstraint* constraint = collider->checkContact(particle);
             if (constraint != nullptr) {
                 _staticConstraints.append(constraint);
+                qDebug("collision detected");
             }
         }
     }
@@ -71,7 +73,14 @@ void Context::applyFriction(const double dt) {
     }
 }
 
-void Context::deleteContactConstraints() {}
+void Context::deleteContactConstraints() {
+
+    // delete static constraints
+    for (StaticConstraint* constraint : _staticConstraints) {
+        delete constraint;
+    }
+    _staticConstraints.clear();
+}
 
 void Context::applyPositions() {
     for (Particle& particle : _particles) {
