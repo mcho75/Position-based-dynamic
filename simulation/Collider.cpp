@@ -1,20 +1,25 @@
 #include "Collider.h"
+#include "math.h"
 #include "widgets/Viewport.h"
 
 StaticConstraint* SphereCollider::checkContact(Particle& particle) {
-    if (true) {
-        return nullptr;   // no collision
+    double norm = sqrt((particle.position[0]- _position[0])*(particle.position[0]- _position[0]) + particle.position[1]- _position[1])*(particle.position[1]- _position[1]);
+    Vec2 nc ((particle.position-_position)/norm);
+    if (norm - _radius < 0) {
+        return new StaticConstraint{particle, particle.position-(norm - _radius)*nc, nc};
     }
-    // compute normal and position
-    return new StaticConstraint{particle, {0, 0}, {0, 0}};
 }
 
 StaticConstraint* PlanCollider::checkContact(Particle& particle) {
-    if (true) {
-        return nullptr;   // no collision
+    double a = (_end[1]- _start[1])/(_end[0]-_start[0]);
+    Vec2 pc((_end[0]+_start[0])/2, (_end[1]+_start[1])/2);
+    double x = particle.position[0];
+    double y = particle.position[1];
+    Vec2 n(a, -1);
+    double ri = particle.radius;
+    if (n[0]*(x-pc[0])+ n[1]*n[1]*(y-pc[1]) - ri < 0){ // result of the check
+        return new StaticConstraint{particle, pc, n};
     }
-    // compute normal and position
-    return new StaticConstraint{particle, {0, 0}, {0, 0}};
 }
 
 void SphereCollider::drawCollider(QPainter& painter, Viewport* viewport) {
