@@ -16,6 +16,7 @@ StaticConstraint* PlanCollider::checkContact(Particle& particle) {
     double a = (_end[1] - _start[1]) / (_end[0] - _start[0]);
     Vec2 pc = (_end + _start) / 2;
     Vec2 nc(-a, 1);
+    nc = nc / sqrt(nc[0] * nc[0] + nc[1] * nc[1]);
     double isOverBefore = (particle.position - pc) * nc - particle.radius;
     if (isOverBefore < 0) {
         nc = nc * -1;
