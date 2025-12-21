@@ -7,7 +7,7 @@ StaticConstraint* SphereCollider::checkContact(Particle& particle) {
                      + (particle.position[1] - _position[1]) * (particle.position[1] - _position[1]));
     Vec2 nc = (particle.position - _position) / norm;
     if (norm - _radius < 0) {
-        return new StaticConstraint{particle, particle.position - (norm - _radius) * nc, nc};
+        return new StaticConstraint{particle, particle.position - (norm - _radius) * nc};
     }
     return nullptr;
 }
@@ -28,7 +28,7 @@ StaticConstraint* PlanCollider::checkContact(Particle& particle) {
                 && particle.position[1] < std::max(_start[1], _end[1])) {
             Vec2 qc = particle.nextPosition - (nc * isOverAfter);
             double C = (particle.nextPosition - qc) * nc - particle.radius;
-            return new StaticConstraint{particle, nc * -C, nc};
+            return new StaticConstraint{particle, nc * -C};
         }
     }
     return nullptr;

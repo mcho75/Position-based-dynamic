@@ -12,7 +12,8 @@ public:
     Context()
         : _particles(QList<Particle>())
         , _colliders(QList<Collider*>())
-        , _staticConstraints(QList<StaticConstraint*>()) {}
+        , _staticConstraints(QList<StaticConstraint*>())
+        , _dynamicConstraints(QList<DynamicConstraint*>()) {}
     ~Context() = default;
     void addParticle(const Particle& particle);
     void addCollider(Collider* collider);
@@ -30,6 +31,7 @@ private:
     QList<Particle> _particles;
     QList<Collider*> _colliders;
     QList<StaticConstraint*> _staticConstraints;
+    QList<DynamicConstraint*> _dynamicConstraints;
 };
 
 

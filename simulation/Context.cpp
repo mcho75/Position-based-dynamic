@@ -37,8 +37,6 @@ void Context::applyExternalForce(const double dt) {
     }
 }
 
-void Context::addDynamicContactConstraints() {}
-
 void Context::addStaticContactConstraints() {
     for (Collider* collider : _colliders) {
         for (Particle& particle : _particles) {
@@ -50,9 +48,35 @@ void Context::addStaticContactConstraints() {
     }
 }
 
+void Context::addDynamicContactConstraints() {
+    for (int i = 0; i < _particles.size(); ++i) {
+        for (int j = 0; j < i; ++j) {
+            Particle& firstParticle = _particles[i];
+            Particle& secondParticle = _particles[j];
+            Vec2 x = firstParticle.nextPosition - secondParticle.nextPosition;
+            double norm = sqrt(x[0] * x[0] + x[1] * x[1]);
+            double C = norm - firstParticle.radius - secondParticle.radius;
+            double sigmai = (1 / firstParticle.mass) / (1 / firstParticle.mass + 1 / secondParticle.mass) * C;
+            double sigmaj = (1 / secondParticle.mass) / (1 / firstParticle.mass + 1 / secondParticle.mass) * C;
+            if (C < 0) {
+                _dynamicConstraints.append(new DynamicConstraint{firstParticle, secondParticle,
+                                                      x * -sigmai / norm, x * sigmaj / norm});
+            }
+        }
+    }
+}
+
 void Context::projectConstraints() {
+
+    // check static constraints
     for (StaticConstraint* constraint : _staticConstraints) {
         constraint->particle.nextPosition = constraint->particle.nextPosition + constraint->position;
+    }
+
+    // check dynamic constraints
+    for (DynamicConstraint* constraint : _dynamicConstraints) {
+        constraint->firstParticle.nextPosition = constraint->firstParticle.nextPosition + constraint->firstPosition;
+        constraint->secondParticle.nextPosition = constraint->secondParticle.nextPosition + constraint->secondPosition;
     }
 }
 
@@ -63,6 +87,12 @@ void Context::deleteContactConstraints() {
         delete constraint;
     }
     _staticConstraints.clear();
+
+    // delete dynamic constraints
+    for (DynamicConstraint* constraint : _dynamicConstraints) {
+        delete constraint;
+    }
+    _dynamicConstraints.clear();
 }
 
 void Context::applyPositions(const double dt) {
