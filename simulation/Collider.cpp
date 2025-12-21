@@ -22,9 +22,14 @@ StaticConstraint* PlanCollider::checkContact(Particle& particle) {
     }
     double isOverAfter = (particle.nextPosition - pc) * nc - particle.radius;
     if (isOverAfter < 0) {
-        Vec2 qc = particle.nextPosition - (nc * isOverAfter);
-        double C = (particle.nextPosition - qc) * nc - particle.radius;
-        return new StaticConstraint{particle, nc * -C, nc};
+        if (particle.position[0] > std::min(_start[0], _end[0])
+                && particle.position[0] < std::max(_start[0], _end[0])
+                && particle.position[1] > std::min(_start[1], _end[1])
+                && particle.position[1] < std::max(_start[1], _end[1])) {
+            Vec2 qc = particle.nextPosition - (nc * isOverAfter);
+            double C = (particle.nextPosition - qc) * nc - particle.radius;
+            return new StaticConstraint{particle, nc * -C, nc};
+        }
     }
     return nullptr;
 }
