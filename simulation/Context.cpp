@@ -34,12 +34,16 @@ void Context::updatePhysicalSystem(const double dt) {
 
 void Context::applyExternalForce(const double dt) {
 
-    // sum of all external forces
-    Vec2 Fext(0, -9.81);
+    // constants
+    Vec2 g(0.0, -9.81);
+    double lambda = -0.5;
 
     // compute velocities
     for (Particle& particle : _particles) {
-        particle.velocity = particle.velocity + (Fext * dt / particle.mass);
+
+        particle.velocity = particle.velocity + (g * dt);
+        particle.velocity = particle.velocity - particle.velocity * (particle.velocity.norm() * lambda * dt / particle.mass);
+
         particle.nextPosition = particle.position + (particle.velocity * dt);
     }
 }

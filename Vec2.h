@@ -16,6 +16,9 @@ public:
     double operator[](int i) const {
         return _components[i];
     }
+    double norm() const {
+        return sqrt(_components[0] * _components[0] + _components[1] * _components[1]);
+    }
 
 private:
     double _components[2] = {0.0, 0.0};

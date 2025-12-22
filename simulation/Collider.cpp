@@ -15,18 +15,18 @@ StaticConstraint* SphereCollider::checkContact(Particle& particle) {
 StaticConstraint* PlanCollider::checkContact(Particle& particle) {
     Vec2 pc = (_end + _start) / 2;
     Vec2 nc(_start[1] - _end[1], _end[0] - _start[0]);
-    nc = nc / sqrt(nc[0] * nc[0] + nc[1] * nc[1]);
+    nc = nc / nc.norm();
     if ((particle.position - pc) * nc - particle.radius < 0) {
         nc = nc * -1;
     }
     if ((particle.nextPosition - pc) * nc - particle.radius < 0) {
         Vec2 tc(_end[0] - _start[0], _end[1] - _start[1]);
-        tc = tc / sqrt(tc[0] * tc[0] + tc[1] * tc[1]);
+        tc = tc / tc.norm();
         Vec2 qc = pc + tc * ((particle.nextPosition - pc) * tc);
         // Vec2 qc = particle.nextPosition - (nc * ((particle.nextPosition - pc) * nc));
         if (qc[0] >= std::min(_start[0], _end[0]) && qc[0] <= std::max(_start[0], _end[0])
             && qc[1] >= std::min(_start[1], _end[1]) && qc[1] <= std::max(_start[1], _end[1])) {
-            double C = (particle.nextPosition - pc) * nc + particle.radius;
+            double C = (particle.nextPosition - qc) * nc + particle.radius;
             return new StaticConstraint{particle, qc + nc * particle.radius, nc * C};
         }
     }
