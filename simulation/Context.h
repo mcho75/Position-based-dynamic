@@ -15,6 +15,7 @@ public:
         , _staticConstraints(QList<StaticConstraint*>())
         , _dynamicConstraints(QList<DynamicConstraint*>()) {}
     ~Context() = default;
+    void initialize(const Vec2& dim1, const Vec2& dim2);
     void addParticle(const Particle& particle);
     void addCollider(Collider* collider);
     QList<Particle> getParticles();

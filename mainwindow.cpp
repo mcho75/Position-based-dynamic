@@ -12,9 +12,11 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->setupUi(this);
     _viewport = ui->viewport;
-    _viewport->setContext(_context);
+    _viewport->setFixedWidth(700);
+    _viewport->setFixedHeight(500);
     _viewport->setDt((double) dt / 1000);
     _viewport->setScale(1000);
+    _viewport->setContext(_context);
 
     connect(_timer, &QTimer::timeout, _viewport, &Viewport::animate);
     _timer->start(dt);

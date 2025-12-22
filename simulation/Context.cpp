@@ -1,5 +1,12 @@
 #include "Context.h"
 
+void Context::initialize(const Vec2& dim1, const Vec2& dim2) {
+    _colliders.append(new PlanCollider(Vec2(dim1[0], dim1[1]), Vec2(dim1[0], dim2[1])));
+    _colliders.append(new PlanCollider(Vec2(dim1[0], dim2[1]), Vec2(dim2[0], dim2[1])));
+    _colliders.append(new PlanCollider(Vec2(dim2[0], dim2[1]), Vec2(dim2[0], dim1[1])));
+    _colliders.append(new PlanCollider(Vec2(dim2[0], dim1[1]), Vec2(dim1[0], dim1[1])));
+}
+
 void Context::addParticle(const Particle& particle) {
     _particles.append(particle);
 }
@@ -70,13 +77,13 @@ void Context::projectConstraints() {
 
     // check static constraints
     for (StaticConstraint* constraint : _staticConstraints) {
-        constraint->particle.nextPosition = constraint->particle.nextPosition + constraint->position;
+        constraint->particle.nextPosition = constraint->contact + constraint->di;
     }
 
     // check dynamic constraints
     for (DynamicConstraint* constraint : _dynamicConstraints) {
-        constraint->firstParticle.nextPosition = constraint->firstParticle.nextPosition + constraint->firstPosition;
-        constraint->secondParticle.nextPosition = constraint->secondParticle.nextPosition + constraint->secondPosition;
+        constraint->firstParticle.nextPosition = constraint->firstParticle.nextPosition + constraint->di;
+        constraint->secondParticle.nextPosition = constraint->secondParticle.nextPosition + constraint->dj;
     }
 }
 

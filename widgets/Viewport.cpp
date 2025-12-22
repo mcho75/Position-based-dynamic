@@ -86,6 +86,10 @@ void Viewport::mouseReleaseEvent(QMouseEvent* event) {
 
 void Viewport::setContext(Context* context) {
     _context = context;
+    double border = 20;
+    Vec2 dim1 = viewToWorld(Vec2(border, border));
+    Vec2 dim2 = viewToWorld(Vec2(width() - border, height() - border));
+    _context->initialize(dim1, dim2);
 }
 
 void Viewport::animate() {

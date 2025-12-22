@@ -9,14 +9,15 @@ class Viewport;
 
 struct StaticConstraint {
     Particle& particle;
-    Vec2 position;
+    Vec2 contact;
+    Vec2 di;
 };
 
 struct DynamicConstraint {
     Particle& firstParticle;
     Particle& secondParticle;
-    Vec2 firstPosition;
-    Vec2 secondPosition;
+    Vec2 di;
+    Vec2 dj;
 };
 
 class Collider {
