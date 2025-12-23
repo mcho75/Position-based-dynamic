@@ -40,7 +40,7 @@ void Viewport::paintEvent(QPaintEvent* event) {
     for (Particle& particle : particles) {
         Vec2 pos = worldToView(particle.position);
         double radius = toScale(particle.radius);
-        QRect dimensions = QRect(pos[0] - radius / 2, pos[1] - radius / 2, radius, radius);
+        QRect dimensions = QRect(pos[0] - radius, pos[1] - radius, 2 * radius, 2 * radius);
         painter.drawEllipse(dimensions);
     }
 
@@ -67,7 +67,7 @@ void Viewport::mousePressEvent(QMouseEvent *event) {
 
 void Viewport::mouseDoubleClickEvent(QMouseEvent *event) {
     Vec2 worldPos = viewToWorld(Vec2(event->pos().x(), event->pos().y()));
-    _context->addParticle({worldPos, worldPos, Vec2(0, 0), 0.01, 5.0});
+    _context->addParticle({worldPos, Vec2(0, 0), 0.01, 5.0});
 }
 
 void Viewport::mouseMoveEvent(QMouseEvent* event) {

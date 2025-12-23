@@ -22,9 +22,9 @@ public:
     QList<Collider*> getColliders();
     void updatePhysicalSystem(const double dt);
     void applyExternalForce(const double dt);
-    void addDynamicContactConstraints();
-    void addStaticContactConstraints();
-    void projectConstraints();
+    void addDynamicContactConstraints(const double dt);
+    void addStaticContactConstraints(const double dt);
+    void projectConstraints(const double dt);
     void deleteContactConstraints();
     void applyPositions(const double dt);
 

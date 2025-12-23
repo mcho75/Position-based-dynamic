@@ -2,32 +2,29 @@
 #include "Collider.h"
 #include "widgets/Viewport.h"
 
-StaticConstraint* SphereCollider::checkContact(Particle& particle) {
-    double norm = sqrt((particle.position[0] - _position[0]) * (particle.position[0] - _position[0])
-                     + (particle.position[1] - _position[1]) * (particle.position[1] - _position[1]));
+StaticConstraint* SphereCollider::checkContact(Particle& particle, const double dt) {
+    double norm = (particle.position - _position).norm();
     Vec2 nc = (particle.position - _position) / norm;
-    if (norm - _radius < 0) {
-        return new StaticConstraint{particle, particle.position, particle.position - (norm - _radius) * nc};
+    if (norm - particle.radius - _radius < 0) {
+        return new StaticConstraint{particle, particle.position - (norm - particle.radius - _radius) * nc};
     }
     return nullptr;
 }
 
-StaticConstraint* PlanCollider::checkContact(Particle& particle) {
+StaticConstraint* PlanCollider::checkContact(Particle& particle, const double dt) {
     Vec2 pc = (_end + _start) / 2;
     Vec2 nc(_start[1] - _end[1], _end[0] - _start[0]);
     nc = nc / nc.norm();
     if ((particle.position - pc) * nc - particle.radius < 0) {
         nc = nc * -1;
     }
-    if ((particle.nextPosition - pc) * nc - particle.radius < 0) {
+    if ((particle.position + particle.velocity * dt - pc) * nc - particle.radius < 0) {
         Vec2 tc(_end[0] - _start[0], _end[1] - _start[1]);
         tc = tc / tc.norm();
-        Vec2 qc = pc + tc * ((particle.nextPosition - pc) * tc);
-        // Vec2 qc = particle.nextPosition - (nc * ((particle.nextPosition - pc) * nc));
+        Vec2 qc = pc + tc * ((particle.position - pc) * tc);
         if (qc[0] >= std::min(_start[0], _end[0]) && qc[0] <= std::max(_start[0], _end[0])
             && qc[1] >= std::min(_start[1], _end[1]) && qc[1] <= std::max(_start[1], _end[1])) {
-            double C = (particle.nextPosition - qc) * nc + particle.radius;
-            return new StaticConstraint{particle, qc + nc * particle.radius, nc * C};
+            return new StaticConstraint{particle, nc * (particle.velocity * nc * -1) + tc * (particle.velocity * tc)};
         }
     }
     return nullptr;

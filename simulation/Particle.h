@@ -6,7 +6,6 @@
 
 struct Particle {
     Vec2 position;
-    Vec2 nextPosition;
     Vec2 velocity;
     double radius;
     double mass;

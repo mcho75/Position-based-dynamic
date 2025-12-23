@@ -25,9 +25,9 @@ QList<Collider*> Context::getColliders() {
 
 void Context::updatePhysicalSystem(const double dt) {
     applyExternalForce(dt);
-    addStaticContactConstraints();
-    addDynamicContactConstraints();
-    projectConstraints();
+    addStaticContactConstraints(dt);
+    addDynamicContactConstraints(dt);
+    projectConstraints(dt);
     deleteContactConstraints();
     applyPositions(dt);
 }
@@ -36,22 +36,19 @@ void Context::applyExternalForce(const double dt) {
 
     // constants
     Vec2 g(0.0, -9.81);
-    double lambda = -0.5;
+    double lambda = 2;
 
     // compute velocities
     for (Particle& particle : _particles) {
-
         particle.velocity = particle.velocity + (g * dt);
         particle.velocity = particle.velocity - particle.velocity * (particle.velocity.norm() * lambda * dt / particle.mass);
-
-        particle.nextPosition = particle.position + (particle.velocity * dt);
     }
 }
 
-void Context::addStaticContactConstraints() {
+void Context::addStaticContactConstraints(const double dt) {
     for (Collider* collider : _colliders) {
         for (Particle& particle : _particles) {
-            StaticConstraint* constraint = collider->checkContact(particle);
+            StaticConstraint* constraint = collider->checkContact(particle, dt);
             if (constraint != nullptr) {
                 _staticConstraints.append(constraint);
             }
@@ -59,35 +56,37 @@ void Context::addStaticContactConstraints() {
     }
 }
 
-void Context::addDynamicContactConstraints() {
-    for (int i = 0; i < _particles.size(); ++i) {
-        for (int j = 0; j < i; ++j) {
+void Context::addDynamicContactConstraints(const double dt) {
+    for (int i = 0; i < _particles.size(); i++) {
+        for (int j = 0; j < i; j++) {
             Particle& firstParticle = _particles[i];
             Particle& secondParticle = _particles[j];
-            Vec2 x = firstParticle.nextPosition - secondParticle.nextPosition;
-            double norm = sqrt(x[0] * x[0] + x[1] * x[1]);
+            Vec2 firstNextPosition = firstParticle.position + (firstParticle.velocity * dt);
+            Vec2 secondNextPosition = secondParticle.position + (secondParticle.velocity * dt);
+            Vec2 x = firstNextPosition - secondNextPosition;
+            double norm = x.norm();
             double C = norm - firstParticle.radius - secondParticle.radius;
-            double sigmai = (1 / firstParticle.mass) / (1 / firstParticle.mass + 1 / secondParticle.mass) * C;
-            double sigmaj = (1 / secondParticle.mass) / (1 / firstParticle.mass + 1 / secondParticle.mass) * C;
             if (C < 0) {
+                double sigmai = (1 / firstParticle.mass) / (1 / firstParticle.mass + 1 / secondParticle.mass) * C;
+                double sigmaj = (1 / secondParticle.mass) / (1 / firstParticle.mass + 1 / secondParticle.mass) * C;
                 _dynamicConstraints.append(new DynamicConstraint{firstParticle, secondParticle,
-                                                      x * -sigmai / norm, x * sigmaj / norm});
+                    x * -sigmai / norm - firstParticle.position, x * sigmaj / norm - secondParticle.position});
             }
         }
     }
 }
 
-void Context::projectConstraints() {
+void Context::projectConstraints(const double dt) {
 
     // check static constraints
     for (StaticConstraint* constraint : _staticConstraints) {
-        constraint->particle.nextPosition = constraint->contact + constraint->di;
+        constraint->particle.velocity = constraint->di;
     }
 
     // check dynamic constraints
     for (DynamicConstraint* constraint : _dynamicConstraints) {
-        constraint->firstParticle.nextPosition = constraint->firstParticle.nextPosition + constraint->di;
-        constraint->secondParticle.nextPosition = constraint->secondParticle.nextPosition + constraint->dj;
+        constraint->firstParticle.velocity = constraint->di;
+        constraint->secondParticle.velocity = constraint->dj;
     }
 }
 
@@ -108,7 +107,6 @@ void Context::deleteContactConstraints() {
 
 void Context::applyPositions(const double dt) {
     for (Particle& particle : _particles) {
-        particle.velocity = (particle.nextPosition - particle.position) / dt;
-        particle.position = particle.nextPosition;
+        particle.position = particle.position + particle.velocity * dt;
     }
 }

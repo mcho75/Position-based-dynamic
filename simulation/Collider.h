@@ -9,7 +9,6 @@ class Viewport;
 
 struct StaticConstraint {
     Particle& particle;
-    Vec2 contact;
     Vec2 di;
 };
 
@@ -24,7 +23,7 @@ class Collider {
 
 public:
     virtual ~Collider() = default;
-    virtual StaticConstraint* checkContact(Particle& particle) { return nullptr; }
+    virtual StaticConstraint* checkContact(Particle& particle, const double dt) { return nullptr; }
     virtual void drawCollider(QPainter& painter, Viewport* viewport) {}
 };
 
@@ -35,7 +34,7 @@ public:
         : _position(position)
         , _radius(radius) {}
     ~SphereCollider() override = default;
-    StaticConstraint* checkContact(Particle& particle) override;
+    StaticConstraint* checkContact(Particle& particle, const double dt) override;
     void drawCollider(QPainter& painter, Viewport* viewport) override;
 
 private:
@@ -50,7 +49,7 @@ public:
         : _start(start)
         , _end(end) {}
     ~PlanCollider() override = default;
-    StaticConstraint* checkContact(Particle& particle) override;
+    StaticConstraint* checkContact(Particle& particle, const double dt) override;
     void drawCollider(QPainter& painter, Viewport* viewport) override;
 
 private:
