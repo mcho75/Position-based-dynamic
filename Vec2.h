@@ -19,6 +19,11 @@ public:
     double norm() const {
         return sqrt(_components[0] * _components[0] + _components[1] * _components[1]);
     }
+    Vec2& operator+=(Vec2& other) {
+        _components[0] += other[0];
+        _components[1] += other[1];
+        return *this;
+    };
 
 private:
     double _components[2] = {0.0, 0.0};

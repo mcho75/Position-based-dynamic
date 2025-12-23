@@ -3,11 +3,11 @@
 #include "widgets/Viewport.h"
 
 StaticConstraint* SphereCollider::checkContact(Particle& particle) {
-    double norm = sqrt((particle.position[0] - _position[0]) * (particle.position[0] - _position[0])
-                     + (particle.position[1] - _position[1]) * (particle.position[1] - _position[1]));
+    double norm = (particle.position - _position).norm();
     Vec2 nc = (particle.position - _position) / norm;
     if (norm - _radius < 0) {
-        return new StaticConstraint{particle, particle.position, particle.position - (norm - _radius) * nc};
+        return new StaticConstraint{particle, particle.position - (norm - _radius) * nc,
+            nc * -2 * ((particle.velocity - _position) * nc)};
     }
     return nullptr;
 }
@@ -26,8 +26,10 @@ StaticConstraint* PlanCollider::checkContact(Particle& particle) {
         // Vec2 qc = particle.nextPosition - (nc * ((particle.nextPosition - pc) * nc));
         if (qc[0] >= std::min(_start[0], _end[0]) && qc[0] <= std::max(_start[0], _end[0])
             && qc[1] >= std::min(_start[1], _end[1]) && qc[1] <= std::max(_start[1], _end[1])) {
-            double C = (particle.nextPosition - qc) * nc + particle.radius;
-            return new StaticConstraint{particle, qc + nc * particle.radius, nc * C};
+            // double C = (particle.nextPosition - qc) * nc + particle.radius;
+            // return new StaticConstraint{particle, qc + nc * particle.radius, nc * C};
+            return new StaticConstraint{particle, nc * -2 * ((particle.nextPosition - pc) * nc - particle.radius),
+                nc * -2 * (particle.velocity * nc)};
         }
     }
     return nullptr;

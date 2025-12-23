@@ -37,10 +37,11 @@ void Viewport::paintEvent(QPaintEvent* event) {
 
     // draw particles
     painter.setBrush(Qt::blue);
+    painter.setPen(Qt::blue);
     for (Particle& particle : particles) {
         Vec2 pos = worldToView(particle.position);
         double radius = toScale(particle.radius);
-        QRect dimensions = QRect(pos[0] - radius / 2, pos[1] - radius / 2, radius, radius);
+        QRect dimensions = QRect(pos[0] - radius, pos[1] - radius, radius * 2, radius * 2);
         painter.drawEllipse(dimensions);
     }
 
