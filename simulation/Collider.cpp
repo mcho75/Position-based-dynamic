@@ -8,7 +8,7 @@ StaticConstraint* SphereCollider::checkContact(Particle& particle) {
     if (norm - _radius < 0) {
         Vec2 tc(nc[1], -nc[0]);
         return new StaticConstraint{particle,
-            _damping * (((particle.velocity - _position) * tc) * tc - ((particle.velocity - _position) * nc) * nc)};
+            _damping * particle.elasticity * (((particle.velocity - _position) * tc) * tc - ((particle.velocity - _position) * nc) * nc)};
     }
     return nullptr;
 }
@@ -29,7 +29,7 @@ StaticConstraint* PlanCollider::checkContact(Particle& particle) {
             // double C = (particle.nextPosition - qc) * nc + particle.radius;
             // return new StaticConstraint{particle, qc + nc * particle.radius, nc * C};
             return new StaticConstraint{particle,
-                _damping * ((particle.velocity * tc) * tc - (particle.velocity * nc) * nc)};
+                _damping * particle.elasticity * ((particle.velocity * tc) * tc - (particle.velocity * nc) * nc)};
         }
     }
     return nullptr;

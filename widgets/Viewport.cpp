@@ -68,7 +68,7 @@ void Viewport::mousePressEvent(QMouseEvent *event) {
 
 void Viewport::mouseDoubleClickEvent(QMouseEvent *event) {
     Vec2 worldPos = viewToWorld(Vec2(event->pos().x(), event->pos().y()));
-    _context->addParticle({worldPos, worldPos, Vec2(0, 0), 0.01, 5.0});
+    _context->addParticle({worldPos, worldPos, Vec2(0, 0), 0.01, 5.0, 0.5});
 }
 
 void Viewport::mouseMoveEvent(QMouseEvent* event) {

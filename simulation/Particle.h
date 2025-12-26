@@ -10,6 +10,7 @@ struct Particle {
     Vec2 velocity;
     double radius;
     double mass;
+    double elasticity;
 };
 
 

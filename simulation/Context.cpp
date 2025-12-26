@@ -44,10 +44,6 @@ void Context::applyExternalForce(const double dt) {
 
         particle.velocity = particle.velocity + (g * dt);
         particle.velocity = particle.velocity + particle.velocity * (particle.velocity.norm() * lambda * dt / particle.mass);
-        // if (particle.velocity.norm() > maxValue) {
-        //     particle.velocity = particle.velocity * maxValue / particle.velocity.norm();
-        // }
-
         particle.nextPosition = particle.position + (particle.velocity * dt);
     }
 }
