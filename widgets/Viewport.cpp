@@ -84,7 +84,7 @@ void Viewport::mouseReleaseEvent(QMouseEvent* event) {
     if (_creatingWall) {
         _creatingWall = false;
         _endClick = Vec2(event->pos().x(), event->pos().y());
-        _context->addCollider(new PlanCollider(viewToWorld(_startClick), viewToWorld(_endClick), 0.8));
+        _context->addCollider(new PlanCollider(viewToWorld(_startClick), viewToWorld(_endClick), 0.95));
     }
 }
 

@@ -64,7 +64,7 @@ void Context::addDynamicContactConstraints() {
             Particle& secondParticle = _particles[j];
             Vec2 x = firstParticle.nextPosition - secondParticle.nextPosition;
             double norm = x.norm();
-            if (norm - firstParticle.radius - secondParticle.radius < -1e-10) {
+            if (norm - firstParticle.radius - secondParticle.radius < 0) {
                 Vec2 nc = x / norm;
                 Vec2 tc(nc[1], -nc[0]);
                 double sigmai = (1 / firstParticle.mass) / (1 / firstParticle.mass + 1 / secondParticle.mass);
@@ -72,8 +72,8 @@ void Context::addDynamicContactConstraints() {
                 Vec2 qc = (firstParticle.nextPosition + secondParticle.nextPosition) / 2;
                 _dynamicConstraints.append(new DynamicConstraint{firstParticle, secondParticle,
                     qc + (firstParticle.radius * nc), qc - (secondParticle.radius * nc),
-                    sigmai * ((firstParticle.velocity * tc) * tc - (firstParticle.velocity * nc) * nc),
-                    sigmaj * ((secondParticle.velocity * tc) * tc - (secondParticle.velocity * nc) * nc)});
+                    sigmai * firstParticle.elasticity * ((firstParticle.velocity * tc) * tc - (firstParticle.velocity * nc) * nc),
+                    sigmaj * secondParticle.elasticity * ((secondParticle.velocity * tc) * tc - (secondParticle.velocity * nc) * nc)});
             }
         }
     }
@@ -83,14 +83,14 @@ void Context::projectConstraints() {
 
     // check static constraints
     for (StaticConstraint* constraint : _staticConstraints) {
-        constraint->particle.nextPosition = constraint->di;
+        // constraint->particle.position = constraint->di;
         constraint->particle.velocity = constraint->vi;
     }
 
     // check dynamic constraints
     for (DynamicConstraint* constraint : _dynamicConstraints) {
-        constraint->firstParticle.nextPosition = constraint->di;
-        constraint->secondParticle.nextPosition = constraint->dj;
+        // constraint->firstParticle.position = constraint->di;
+        // constraint->secondParticle.position = constraint->dj;
         constraint->firstParticle.velocity = constraint->vi;
         constraint->secondParticle.velocity = constraint->vj;
     }
@@ -113,6 +113,6 @@ void Context::deleteContactConstraints() {
 
 void Context::applyPositions(const double dt) {
     for (Particle& particle : _particles) {
-        particle.position = particle.nextPosition;
+        particle.position = particle.position + (particle.velocity * dt);
     }
 }
