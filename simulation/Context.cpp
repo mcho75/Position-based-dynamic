@@ -37,11 +37,9 @@ void Context::applyExternalForce(const double dt) {
     // constants
     Vec2 g(0.0, -9.81);
     double lambda = -5;
-    // double maxValue = 100;
 
     // compute velocities
     for (Particle& particle : _particles) {
-
         particle.velocity = particle.velocity + (g * dt);
         particle.velocity = particle.velocity + particle.velocity * (particle.velocity.norm() * lambda * dt / particle.mass);
         particle.nextPosition = particle.position + (particle.velocity * dt);
@@ -66,7 +64,7 @@ void Context::addDynamicContactConstraints() {
             Particle& secondParticle = _particles[j];
             Vec2 x = firstParticle.nextPosition - secondParticle.nextPosition;
             double norm = x.norm();
-            if (norm - firstParticle.radius - secondParticle.radius < 0) {
+            if (norm - firstParticle.radius - secondParticle.radius < -1e-10) {
                 Vec2 nc = x / norm;
                 Vec2 tc(nc[1], -nc[0]);
                 double sigmai = (1 / firstParticle.mass) / (1 / firstParticle.mass + 1 / secondParticle.mass);
@@ -115,15 +113,6 @@ void Context::deleteContactConstraints() {
 
 void Context::applyPositions(const double dt) {
     for (Particle& particle : _particles) {
-        // particle.velocity = (particle.nextPosition - particle.position) / dt;
-        // double minValue = 0.001;
-        // if ((particle.position - particle.nextPosition).norm() < minValue) {
-        //     particle.nextPosition = particle.position;
-        // }
-        // else {
-        //     particle.position = particle.nextPosition;
-        // }
-        // particle.position = particle.nextPosition;
-        particle.position = particle.position + particle.velocity * dt;
+        particle.position = particle.nextPosition;
     }
 }

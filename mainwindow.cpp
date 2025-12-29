@@ -27,3 +27,9 @@ MainWindow::~MainWindow() {
     delete _context;
     delete _timer;
 }
+
+void MainWindow::keyPressEvent(QKeyEvent *e) {
+    if (e->key() == Qt::Key_Space) {
+        _viewport->animate();
+    }
+}
