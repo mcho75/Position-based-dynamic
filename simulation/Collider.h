@@ -9,12 +9,15 @@ class Viewport;
 
 struct StaticConstraint {
     Particle& particle;
+    Vec2 di;
     Vec2 vi;
 };
 
 struct DynamicConstraint {
     Particle& firstParticle;
     Particle& secondParticle;
+    Vec2 di;
+    Vec2 dj;
     Vec2 vi;
     Vec2 vj;
 };

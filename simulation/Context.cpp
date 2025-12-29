@@ -66,15 +66,16 @@ void Context::addDynamicContactConstraints() {
             Particle& secondParticle = _particles[j];
             Vec2 x = firstParticle.nextPosition - secondParticle.nextPosition;
             double norm = x.norm();
-            double C = norm - firstParticle.radius - secondParticle.radius;
-            if (C < 0) {
+            if (norm - firstParticle.radius - secondParticle.radius < 0) {
                 Vec2 nc = x / norm;
                 Vec2 tc(nc[1], -nc[0]);
                 double sigmai = (1 / firstParticle.mass) / (1 / firstParticle.mass + 1 / secondParticle.mass);
                 double sigmaj = (1 / secondParticle.mass) / (1 / firstParticle.mass + 1 / secondParticle.mass);
+                Vec2 qc = (firstParticle.nextPosition + secondParticle.nextPosition) / 2;
                 _dynamicConstraints.append(new DynamicConstraint{firstParticle, secondParticle,
-                    2 * sigmai * ((firstParticle.velocity * tc) * tc - (firstParticle.velocity * nc) * nc),
-                    2 * sigmaj * ((secondParticle.velocity * tc) * tc - (secondParticle.velocity * nc) * nc)});
+                    qc + (firstParticle.radius * nc), qc - (secondParticle.radius * nc),
+                    sigmai * ((firstParticle.velocity * tc) * tc - (firstParticle.velocity * nc) * nc),
+                    sigmaj * ((secondParticle.velocity * tc) * tc - (secondParticle.velocity * nc) * nc)});
             }
         }
     }
@@ -84,11 +85,14 @@ void Context::projectConstraints() {
 
     // check static constraints
     for (StaticConstraint* constraint : _staticConstraints) {
+        constraint->particle.nextPosition = constraint->di;
         constraint->particle.velocity = constraint->vi;
     }
 
     // check dynamic constraints
     for (DynamicConstraint* constraint : _dynamicConstraints) {
+        constraint->firstParticle.nextPosition = constraint->di;
+        constraint->secondParticle.nextPosition = constraint->dj;
         constraint->firstParticle.velocity = constraint->vi;
         constraint->secondParticle.velocity = constraint->vj;
     }
