@@ -1,10 +1,10 @@
 #include "Context.h"
 
 void Context::initialize(const Vec2& dim1, const Vec2& dim2) {
-    _colliders.append(new PlanCollider(Vec2(dim1[0], dim1[1]), Vec2(dim1[0], dim2[1]), 0.8));
-    _colliders.append(new PlanCollider(Vec2(dim1[0], dim2[1]), Vec2(dim2[0], dim2[1]), 0.8));
-    _colliders.append(new PlanCollider(Vec2(dim2[0], dim2[1]), Vec2(dim2[0], dim1[1]), 0.8));
-    _colliders.append(new PlanCollider(Vec2(dim2[0], dim1[1]), Vec2(dim1[0], dim1[1]), 0.8));
+    _colliders.append(new PlanCollider(Vec2(dim1[0], dim1[1]), Vec2(dim1[0], dim2[1]), 0.05));
+    _colliders.append(new PlanCollider(Vec2(dim1[0], dim2[1]), Vec2(dim2[0], dim2[1]), 0.05));
+    _colliders.append(new PlanCollider(Vec2(dim2[0], dim2[1]), Vec2(dim2[0], dim1[1]), 0.05));
+    _colliders.append(new PlanCollider(Vec2(dim2[0], dim1[1]), Vec2(dim1[0], dim1[1]), 0.05));
 }
 
 void Context::addParticle(const Particle& particle) {
@@ -25,9 +25,10 @@ QList<Collider*> Context::getColliders() {
 
 void Context::updatePhysicalSystem(const double dt) {
     applyExternalForce(dt);
-    addStaticContactConstraints();
     addDynamicContactConstraints();
-    projectConstraints();
+    projectDynamicConstraints(dt);
+    addStaticContactConstraints();
+    projectStaticConstraints(dt);
     deleteContactConstraints();
     applyPositions(dt);
 }
@@ -46,6 +47,49 @@ void Context::applyExternalForce(const double dt) {
     }
 }
 
+void Context::addDynamicContactConstraints() {
+    for (int i = 0; i < _particles.size(); i++) {
+        for (int j = 0; j < i; ++j) {
+            Particle& firstParticle = _particles[i];
+            Particle& secondParticle = _particles[j];
+            Vec2 x = firstParticle.nextPosition - secondParticle.nextPosition;
+            double norm = x.norm();
+            if (norm - firstParticle.radius - secondParticle.radius < 0) {
+                Vec2 nc = x / norm;
+                Vec2 tc(nc[1], -nc[0]);
+                Vec2 qc = (firstParticle.position + secondParticle.position) / 2;
+                _dynamicConstraints.append(new DynamicConstraint{firstParticle, secondParticle, nc, tc, qc});
+            }
+        }
+    }
+}
+
+void Context::projectDynamicConstraints(const double dt) {
+
+    for (DynamicConstraint* constraint : _dynamicConstraints) {
+
+        Particle& firstParticle = constraint->firstParticle;
+        Particle& secondParticle = constraint->secondParticle;
+
+        double sigmai = (1 / firstParticle.mass) / ((1 / firstParticle.mass) + (1 / secondParticle.mass));
+        double sigmaj = (1 / secondParticle.mass) / ((1 / firstParticle.mass) + (1 / secondParticle.mass));
+
+        // projection on tangent and normal
+        Vec2 firstTangent = (firstParticle.velocity * constraint->tangent) * constraint->tangent;
+        Vec2 secondTangent = (secondParticle.velocity * constraint->tangent) * constraint->tangent;
+        Vec2 firstNormal = (firstParticle.velocity * constraint->normal) * constraint->normal;
+        Vec2 secondNormal = (secondParticle.velocity * constraint->normal) * constraint->normal;
+
+        // new position, nextPosition and velocity
+        firstParticle.position = constraint->contact + (firstParticle.radius * constraint->normal);
+        secondParticle.position = constraint->contact - (secondParticle.radius * constraint->normal);
+        firstParticle.velocity -= (1 + firstParticle.elasticity - sigmai) * firstNormal;
+        secondParticle.velocity -= (1 + secondParticle.elasticity + sigmaj) * secondNormal;
+        firstParticle.nextPosition = firstParticle.position + (firstParticle.velocity * dt);
+        secondParticle.nextPosition = secondParticle.position + (secondParticle.velocity * dt);
+    }
+}
+
 void Context::addStaticContactConstraints() {
     for (Collider* collider : _colliders) {
         for (Particle& particle : _particles) {
@@ -57,42 +101,21 @@ void Context::addStaticContactConstraints() {
     }
 }
 
-void Context::addDynamicContactConstraints() {
-    for (int i = 0; i < _particles.size(); ++i) {
-        for (int j = 0; j < i; ++j) {
-            Particle& firstParticle = _particles[i];
-            Particle& secondParticle = _particles[j];
-            Vec2 x = firstParticle.nextPosition - secondParticle.nextPosition;
-            double norm = x.norm();
-            if (norm - firstParticle.radius - secondParticle.radius < 0) {
-                Vec2 nc = x / norm;
-                Vec2 tc(nc[1], -nc[0]);
-                double sigmai = (1 / firstParticle.mass) / (1 / firstParticle.mass + 1 / secondParticle.mass);
-                double sigmaj = (1 / secondParticle.mass) / (1 / firstParticle.mass + 1 / secondParticle.mass);
-                Vec2 qc = (firstParticle.nextPosition + secondParticle.nextPosition) / 2;
-                _dynamicConstraints.append(new DynamicConstraint{firstParticle, secondParticle,
-                    qc + (firstParticle.radius * nc), qc - (secondParticle.radius * nc),
-                    sigmai * firstParticle.elasticity * ((firstParticle.velocity * tc) * tc - (firstParticle.velocity * nc) * nc),
-                    sigmaj * secondParticle.elasticity * ((secondParticle.velocity * tc) * tc - (secondParticle.velocity * nc) * nc)});
-            }
-        }
-    }
-}
+void Context::projectStaticConstraints(const double dt) {
 
-void Context::projectConstraints() {
-
-    // check static constraints
     for (StaticConstraint* constraint : _staticConstraints) {
-        // constraint->particle.position = constraint->di;
-        constraint->particle.velocity = constraint->vi;
-    }
 
-    // check dynamic constraints
-    for (DynamicConstraint* constraint : _dynamicConstraints) {
-        // constraint->firstParticle.position = constraint->di;
-        // constraint->secondParticle.position = constraint->dj;
-        constraint->firstParticle.velocity = constraint->vi;
-        constraint->secondParticle.velocity = constraint->vj;
+        Particle& particle = constraint->particle;
+        Collider* collider = constraint->collider;
+
+        // projection on tangent and normal
+        Vec2 velocityTangent = (particle.velocity * constraint->tangent) * constraint->tangent;
+        Vec2 velocityNormal = (particle.velocity * constraint->normal) * constraint->normal;
+
+        // new position, nextPosition and velocity
+        particle.position = constraint->contact + particle.radius * constraint->normal;
+        particle.velocity -= (1 + particle.elasticity) * velocityNormal + collider->getDamping() * velocityTangent;
+        particle.nextPosition = particle.position + (particle.velocity * dt);
     }
 }
 
@@ -113,6 +136,6 @@ void Context::deleteContactConstraints() {
 
 void Context::applyPositions(const double dt) {
     for (Particle& particle : _particles) {
-        particle.position = particle.position + (particle.velocity * dt);
+        particle.position = particle.nextPosition;
     }
 }

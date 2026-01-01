@@ -68,10 +68,7 @@ void Viewport::mousePressEvent(QMouseEvent *event) {
 
 void Viewport::mouseDoubleClickEvent(QMouseEvent *event) {
     Vec2 worldPos = viewToWorld(Vec2(event->pos().x(), event->pos().y()));
-    double rho = 1000000;
-    double radius = (double) ((rand() % 20) + 20) / 1000;
-    double mass = rho * 4 * radius * radius * radius / 3;
-    _context->addParticle({worldPos, worldPos, Vec2(0, 0), radius, mass, 0.5});
+    _context->addParticle({worldPos, worldPos, Vec2(0, 0), 0.01, 10, 0.5});
 }
 
 void Viewport::mouseMoveEvent(QMouseEvent* event) {
@@ -84,7 +81,7 @@ void Viewport::mouseReleaseEvent(QMouseEvent* event) {
     if (_creatingWall) {
         _creatingWall = false;
         _endClick = Vec2(event->pos().x(), event->pos().y());
-        _context->addCollider(new PlanCollider(viewToWorld(_startClick), viewToWorld(_endClick), 0.95));
+        _context->addCollider(new PlanCollider(viewToWorld(_startClick), viewToWorld(_endClick), 0.05));
     }
 }
 
