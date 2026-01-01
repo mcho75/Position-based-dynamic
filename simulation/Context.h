@@ -23,8 +23,9 @@ public:
     void updatePhysicalSystem(const double dt);
     void applyExternalForce(const double dt);
     void addDynamicContactConstraints();
+    void projectDynamicConstraints(const double dt);
     void addStaticContactConstraints();
-    void projectConstraints();
+    void projectStaticConstraints(const double dt);
     void deleteContactConstraints();
     void applyPositions(const double dt);
 

@@ -4,11 +4,11 @@
 
 StaticConstraint* SphereCollider::checkContact(Particle& particle) {
     double norm = (particle.position - _position).norm();
-    Vec2 nc = (particle.position - _position) / norm;
-    if (norm - _radius < 0) {
+    if (norm - _radius < -1e-10) {
+        Vec2 nc = (particle.position - _position) / norm;
         Vec2 tc(nc[1], -nc[0]);
-        return new StaticConstraint{particle,
-            _damping * (((particle.velocity - _position) * tc) * tc - ((particle.velocity - _position) * nc) * nc)};
+        Vec2 qc = _position + (_radius * nc);
+        return new StaticConstraint{particle, this, nc, tc, qc};
     }
     return nullptr;
 }
@@ -17,19 +17,15 @@ StaticConstraint* PlanCollider::checkContact(Particle& particle) {
     Vec2 pc = (_end + _start) / 2;
     Vec2 nc(_start[1] - _end[1], _end[0] - _start[0]);
     nc = nc / nc.norm();
-    if ((particle.position - pc) * nc - particle.radius < 0) {
+    if ((particle.position - pc) * nc - (particle.radius * 0.99) < 0) {
         nc = nc * -1;
     }
-    if ((particle.nextPosition - pc) * nc - particle.radius < 0) {
+    if ((particle.nextPosition - pc) * nc - (particle.radius * 0.99) < 0) {
         Vec2 tc(nc[1], -nc[0]);
-        Vec2 qc = pc + tc * ((particle.nextPosition - pc) * tc);
-        // Vec2 qc = particle.nextPosition - (nc * ((particle.nextPosition - pc) * nc));
+        Vec2 qc = pc + ((particle.nextPosition - pc) * tc) * tc;
         if (qc[0] >= std::min(_start[0], _end[0]) && qc[0] <= std::max(_start[0], _end[0])
             && qc[1] >= std::min(_start[1], _end[1]) && qc[1] <= std::max(_start[1], _end[1])) {
-            // double C = (particle.nextPosition - qc) * nc + particle.radius;
-            // return new StaticConstraint{particle, qc + nc * particle.radius, nc * C};
-            return new StaticConstraint{particle,
-                _damping * ((particle.velocity * tc) * tc - (particle.velocity * nc) * nc)};
+            return new StaticConstraint{particle, this, nc, tc, qc};
         }
     }
     return nullptr;
