@@ -12,9 +12,11 @@ MainWindow::MainWindow(QWidget *parent)
 
     ui->setupUi(this);
     _viewport = ui->viewport;
-    _viewport->setContext(_context);
+    _viewport->setFixedWidth(700);
+    _viewport->setFixedHeight(500);
     _viewport->setDt((double) dt / 1000);
     _viewport->setScale(1000);
+    _viewport->setContext(_context);
 
     connect(_timer, &QTimer::timeout, _viewport, &Viewport::animate);
     _timer->start(dt);
@@ -24,4 +26,10 @@ MainWindow::~MainWindow() {
     delete ui;
     delete _context;
     delete _timer;
+}
+
+void MainWindow::keyPressEvent(QKeyEvent *e) {
+    if (e->key() == Qt::Key_Space) {
+        _viewport->animate();
+    }
 }

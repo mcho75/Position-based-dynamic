@@ -1,21 +1,39 @@
 #ifndef POSITION_BASED_DYNAMIC_CONTEXT_H
 #define POSITION_BASED_DYNAMIC_CONTEXT_H
+
+
 #include <qlist.h>
-
 #include "Particle.h"
-
+#include "Collider.h"
 
 class Context {
 
 public:
-    Context() : _particles(QList<Particle>()) {}
+    Context()
+        : _particles(QList<Particle>())
+        , _colliders(QList<Collider*>())
+        , _staticConstraints(QList<StaticConstraint*>())
+        , _dynamicConstraints(QList<DynamicConstraint*>()) {}
     ~Context() = default;
-    void addParticle(Particle* particle);
+    void initialize(const Vec2& dim1, const Vec2& dim2);
+    void addParticle(const Particle& particle);
+    void addCollider(Collider* collider);
     QList<Particle> getParticles();
-    void updatePhysicalSystem(double dt);
+    QList<Collider*> getColliders();
+    void updatePhysicalSystem(const double dt);
+    void applyExternalForce(const double dt);
+    void addDynamicContactConstraints();
+    void projectDynamicConstraints(const double dt);
+    void addStaticContactConstraints();
+    void projectStaticConstraints(const double dt);
+    void deleteContactConstraints();
+    void applyPositions(const double dt);
 
 private:
     QList<Particle> _particles;
+    QList<Collider*> _colliders;
+    QList<StaticConstraint*> _staticConstraints;
+    QList<DynamicConstraint*> _dynamicConstraints;
 };
 
 

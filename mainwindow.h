@@ -17,6 +17,7 @@ class MainWindow : public QMainWindow {
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow() override;
+    void keyPressEvent(QKeyEvent *e) override;
 
 private:
     Ui::MainWindow* ui;

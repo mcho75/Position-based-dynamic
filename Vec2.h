@@ -16,10 +16,27 @@ public:
     double operator[](int i) const {
         return _components[i];
     }
+    double norm() const {
+        return sqrt(_components[0] * _components[0] + _components[1] * _components[1]);
+    }
+    const Vec2& operator+=(const Vec2& other) {
+        _components[0] += other[0];
+        _components[1] += other[1];
+        return *this;
+    }
+    const Vec2& operator-=(const Vec2& other) {
+        _components[0] -= other[0];
+        _components[1] -= other[1];
+        return *this;
+    }
 
 private:
     double _components[2] = {0.0, 0.0};
 };
+
+inline double operator*(const Vec2& a, const Vec2& b) {
+    return (a[0] * b[0]) + (a[1] * b[1]);
+}
 
 inline Vec2 operator+(const Vec2& a, const Vec2& b) {
     return {a[0] + b[0], a[1] + b[1]};

@@ -2,17 +2,15 @@
 #define POSITION_BASED_DYNAMIC_PARTICLE_H
 
 
-#include "../Vec2.h"
+#include "Vec2.h"
 
-class Particle {
-
-public:
+struct Particle {
     Vec2 position;
+    Vec2 nextPosition;
     Vec2 velocity;
     double radius;
     double mass;
-    Particle(Vec2 position, Vec2 velocity, double radius, double mass);
-    ~Particle() = default;
+    double elasticity;
 };
 
 
