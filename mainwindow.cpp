@@ -2,34 +2,31 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 
-MainWindow::MainWindow(QWidget *parent)
+MainWindow::MainWindow(QWidget *parent, double dt)
     : QMainWindow(parent)
-    , ui(new Ui::MainWindow)
-    , _context(new Context())
+    , _ui(new Ui::MainWindow)
+    , _context(new Context(dt))
     , _timer(new QTimer(this)) {
 
-    int dt = 10;
-
-    ui->setupUi(this);
-    _viewport = ui->viewport;
+    _ui->setupUi(this);
+    _viewport = _ui->viewport;
     _viewport->setFixedWidth(700);
     _viewport->setFixedHeight(500);
-    _viewport->setDt((double) dt / 1000);
     _viewport->setScale(1000);
     _viewport->setContext(_context);
 
     connect(_timer, &QTimer::timeout, _viewport, &Viewport::animate);
-    _timer->start(dt);
+    _timer->start(dt * 1000);
 }
 
 MainWindow::~MainWindow() {
-    delete ui;
+    delete _ui;
     delete _context;
     delete _timer;
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *e) {
     if (e->key() == Qt::Key_Space) {
-        _viewport->animate();
+        _viewport->switchMode();
     }
 }

@@ -15,12 +15,12 @@ class MainWindow : public QMainWindow {
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = nullptr);
+    explicit MainWindow(QWidget *parent = nullptr, double dt = 0.001);
     ~MainWindow() override;
     void keyPressEvent(QKeyEvent *e) override;
 
-private:
-    Ui::MainWindow* ui;
+protected:
+    Ui::MainWindow* _ui;
     Context* _context;
     Viewport* _viewport;
     QTimer* _timer;

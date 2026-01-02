@@ -2,6 +2,8 @@
 #define POSITION_BASED_DYNAMIC_VEC2_H
 
 
+#include <cmath>
+
 class Vec2 {
 
 public:
@@ -27,6 +29,16 @@ public:
     const Vec2& operator-=(const Vec2& other) {
         _components[0] -= other[0];
         _components[1] -= other[1];
+        return *this;
+    }
+    const Vec2& operator*=(const double other) {
+        _components[0] *= other;
+        _components[1] *= other;
+        return *this;
+    }
+    const Vec2& operator/=(const double other) {
+        _components[0] /= other;
+        _components[1] /= other;
         return *this;
     }
 

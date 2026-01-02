@@ -23,9 +23,15 @@ set(PROJECT_SOURCES
         Vec2.h
         widgets/Viewport.cpp
         widgets/Viewport.h
-        simulation/Collider.cpp
-        simulation/Collider.h
-        simulation/Particle.h
+        simulation/Entity.h
+        simulation/attributes/Attribute.h
+        simulation/attributes/Rigidbody.cpp
+        simulation/attributes/Collider.cpp
+        simulation/attributes/Sprite.cpp
+        simulation/attributes/Collider.h
+        simulation/attributes/Rigidbody.h
+        simulation/attributes/Sprite.h
+        simulation/Entity.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
