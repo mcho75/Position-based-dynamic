@@ -3,37 +3,26 @@
 
 
 #include <qlist.h>
-#include "Particle.h"
-#include "Collider.h"
+#include "Entity.h"
 
 class Context {
 
 public:
-    Context()
-        : _particles(QList<Particle>())
-        , _colliders(QList<Collider*>())
-        , _staticConstraints(QList<StaticConstraint*>())
-        , _dynamicConstraints(QList<DynamicConstraint*>()) {}
+    Context(double dt)
+        : _dt(dt)
+        , _entities(QList<Entity*>()) {}
     ~Context() = default;
-    void initialize(const Vec2& dim1, const Vec2& dim2);
-    void addParticle(const Particle& particle);
-    void addCollider(Collider* collider);
-    QList<Particle> getParticles();
-    QList<Collider*> getColliders();
-    void updatePhysicalSystem(const double dt);
-    void applyExternalForce(const double dt);
-    void addDynamicContactConstraints();
-    void projectDynamicConstraints(const double dt);
-    void addStaticContactConstraints();
-    void projectStaticConstraints(const double dt);
-    void deleteContactConstraints();
-    void applyPositions(const double dt);
+    double getDt() { return _dt; }
+    QList<Entity*> getEntities() { return _entities; }
+    void addEntity(Entity* entity);
+    void update();
+    void checkRigidbodies();
+    void checkColliders();
+    void updatePositions();
 
 private:
-    QList<Particle> _particles;
-    QList<Collider*> _colliders;
-    QList<StaticConstraint*> _staticConstraints;
-    QList<DynamicConstraint*> _dynamicConstraints;
+    double _dt;
+    QList<Entity*> _entities;
 };
 
 
