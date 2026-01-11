@@ -61,8 +61,26 @@ Constraint* BoxCollider::checkContactSphere(Entity* other, SphereCollider* colli
     if ((abs(widthDistance) - collider->getRadius() > _width / 2) || (abs(heightDistance) - collider->getRadius() > _height / 2)) {
         return nullptr;
     }
+    if ((abs(widthDistance) > _width / 2) && (abs(heightDistance) > _height / 2)) {
+        if ((other->getPosition() - (_width / 2 * tangent) + (_height / 2 * _normal) - _parent->getPosition()).norm() > collider->getRadius()
+            && (other->getPosition() + (_width / 2 * tangent) + (_height / 2 * _normal) - _parent->getPosition()).norm() > collider->getRadius()
+            && (other->getPosition() - (_width / 2 * tangent) - (_height / 2 * _normal) - _parent->getPosition()).norm() > collider->getRadius()
+            && (other->getPosition() + (_width / 2 * tangent) - (_height / 2 * _normal) - _parent->getPosition()).norm() > collider->getRadius()) {
+            return nullptr;
+        }
+    }
 
     // we search the closest contact point on each border
+    if (widthDistance < 0) {
+        widthDistance = std::max(widthDistance, -_width / 2);
+    } else {
+        widthDistance = std::min(widthDistance, _width / 2);
+    }
+    if (heightDistance < 0) {
+        heightDistance = std::max(heightDistance, -_height / 2);
+    } else {
+        heightDistance = std::min(heightDistance, _height / 2);
+    }
     Constraint constraints[4] = {
         {_parent->getPosition() + (widthDistance * tangent) + (_height / 2 * _normal), _normal},
         {_parent->getPosition() + (widthDistance * tangent) - (_height / 2 * _normal), _normal * -1},
@@ -70,15 +88,12 @@ Constraint* BoxCollider::checkContactSphere(Entity* other, SphereCollider* colli
         {_parent->getPosition() + (heightDistance * _normal) - (_width / 2 * tangent), tangent * -1}
     };
     Constraint* minConstraint = new Constraint{constraints[0].contact, constraints[0].normal};
-    qDebug() << "Before: " << minConstraint->contact[0] << minConstraint->contact[1];
     for (auto& constraint : constraints) {
-        qDebug() << "Checking " << constraint.contact[0] << constraint.contact[1];
         if ((other->getPosition() - constraint.contact).norm() < (other->getPosition() - minConstraint->contact).norm()) {
             minConstraint->normal = constraint.normal;
             minConstraint->contact = constraint.contact;
         }
     }
-    qDebug() << "Best result: " << minConstraint->contact[0] << minConstraint->contact[1];
     return minConstraint;
 }
 

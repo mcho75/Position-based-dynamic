@@ -29,4 +29,7 @@ void MainWindow::keyPressEvent(QKeyEvent *e) {
     if (e->key() == Qt::Key_Space) {
         _viewport->switchMode();
     }
+    if (e->key() == Qt::Key_Enter) {
+        _viewport->animate();
+    }
 }
