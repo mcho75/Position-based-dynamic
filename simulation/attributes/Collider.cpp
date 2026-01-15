@@ -1,16 +1,42 @@
 #include "Collider.h"
 #include "simulation/Entity.h"
 #include <QDebug>
+#include <cmath>
 
 void BoxCollider::checkContact(Entity* other) {
 
-    // if other doesn't have a collider, then there can't be any contact
-    if (other->getCollider() == nullptr) {
+    // if other doesn't have a collider or _parent doesn't have a rigidbody, then there can't be any contact
+    if (other->getCollider() == nullptr || _parent->getRigidbody() == nullptr) {
         return;
     }
 
-    // TODO: contact box/anything else
+    // we get the position of the contact and its normal
+    Constraint* constraint = other->getCollider()->checkContactBox(_parent, this);
+
+    // if other's collider doesn't intersect this, then there can't be any contact
+    if (constraint == nullptr) {
+        return;
+    }
+
+    // we get the data from the collision
+    Vec2 normal = constraint->normal;
+    free(constraint);
+
+    // we update the position and velocity based on the collision
+    // TODO
+
+    // the mass of the other object allows for an energy transfer
+    if (other->getRigidbody() != nullptr) {
+        double v1 = _parent->getVelocity().norm();
+        double v2 = other->getVelocity().norm();
+        double mass1 = _parent->getRigidbody()->getMass();
+        double mass2 = other->getRigidbody()->getMass();
+        double v1_updated = (2 * mass2 * v2 + v1 * (mass1 - mass2)) / (mass1 + mass2);
+        _parent->setVelocity(-v1_updated * normal);
+    }
 }
+
+// https://www.owl-ge.ch/IMG/pdf/choc_2D_avec_citation.pdf pour la formule des collisions
 
 void SphereCollider::checkContact(Entity* other) {
 
@@ -34,11 +60,24 @@ void SphereCollider::checkContact(Entity* other) {
     free(constraint);
 
     // we update the position and velocity based on the collision
-    qDebug() << "Contact between " << _parent->getName() << " and " << other->getName() << " at " << contact[0] << contact[1];
     _parent->setPosition(contact + (_radius * normal));
     Vec2 tangentVelocity = (_parent->getVelocity() * tangent) * tangent;
     Vec2 normalVelocity = (_parent->getVelocity() * normal) * normal;
     _parent->setVelocity((1 - other->getCollider()->getDamping()) * tangentVelocity - _parent->getRigidbody()->getElasticity() * normalVelocity);
+
+    // the mass of the other object allows for an energy transfer
+    if (other->getRigidbody() != nullptr) {
+        double v1 = _parent->getVelocity().norm();
+        double v2 = other->getVelocity().norm();
+        double mass1 = _parent->getRigidbody()->getMass();
+        double mass2 = other->getRigidbody()->getMass();
+        double alpha1 = (_parent->getVelocity() * normal) / (_parent->getVelocity().norm());
+        double alpha2 = (other->getVelocity()*normal) / (other->getVelocity().norm());
+        double theta1 = atan( (mass1 - mass2) * tan(90 - alpha1) / (mass1 + mass2) + 2 * mass2 / (mass1 + mass2) * v2 / v1 * sin(90 - alpha2) / cos(90 - alpha1)) ;
+        double alpha1_prime = 90 - theta1; // angle between normal and directing vector
+        double v1_updated = sqrt( (((mass1 - mass2)*v1*sin(90-alpha1))/(mass1+mass2) + 2*mass2*v2*sin(90-alpha2)/(mass1+mass2)) * (((mass1 - mass2)*v1*sin(90-alpha1))/(mass1+mass2) + 2*mass2*v2*sin(90-alpha2)/(mass1+mass2)) + (v1*cos(90-alpha1))*(v1*cos(90-alpha1)));
+        _parent->setVelocity(_parent->getVelocity() - v1_updated * (cos(alpha1_prime) * normal + sin(alpha1_prime) * tangent));
+    }
 }
 
 Constraint* BoxCollider::checkContactBox(Entity* other, BoxCollider* collider) {

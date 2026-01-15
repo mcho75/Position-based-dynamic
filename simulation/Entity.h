@@ -5,7 +5,6 @@
 #include "attributes/Collider.h"
 #include "attributes/Rigidbody.h"
 #include "attributes/Sprite.h"
-#include <bits/stdc++.h>
 
 class Entity {
 
@@ -24,7 +23,10 @@ public:
     Rigidbody* getRigidbody() { return _rigidbody; }
     Sprite* getSprite() { return _sprite; }
     void setName(std::string name) { _name = name; }
-    void setPosition(Vec2 position) { _position = position; }
+    void setPosition(Vec2 position) {
+        position = Vec2(std::max(-1000.,  position[0]), std::max(-1000.,position[1]));
+        _position = position;
+    }
     void setVelocity(Vec2 velocity) { _velocity = velocity; }
     void setCollider(Collider* collider) { _collider = collider; }
     void setRigidbody(Rigidbody* rigidbody) { _rigidbody = rigidbody; }
